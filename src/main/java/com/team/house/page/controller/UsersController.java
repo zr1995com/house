@@ -33,16 +33,23 @@ public class UsersController {
         }
     }
     @RequestMapping("loginUser")
-    public String loginUser(String name, String password, Model model, HttpSession session){
-        Users users = usersService.loginUser(name, password);
-        if (users==null){
-            model.addAttribute("look","用户名或密码错误");
-            return "login";
+    public String loginUser(String name, String password,String veryCode, Model model, HttpSession session){
+        String s=(String) session.getAttribute("saveCode");
+        if (s.equals(veryCode)){
+            Users users = usersService.loginUser(name, password);
+            if (users==null){
+                model.addAttribute("look","用户名或密码错误");
+                return "login";
+            }else {
+                session.setAttribute("loginInfo",users);
+                session.setMaxInactiveInterval(300);
+                return "guanli";
+            }
         }else {
-            session.setAttribute("loginInfo",users);
-            session.setMaxInactiveInterval(300);
-            return "guanli";
+            model.addAttribute("look","验证码错误或者验证码超时");
+            return "login";
         }
+
     }
 
 }
